@@ -94,6 +94,7 @@ usuário no control plane.
 | `list_deployments` | Histórico de deploys de um service (status, branch/commit, URL).   | `serviceId`, `limit?`                          |
 | `get_deployment`   | Detalha um deploy (imagem, réplicas, erro, timestamps).            | `deploymentId`                                 |
 | `get_logs`         | Lê logs de `deploy` (runtime) ou `build` do deploy atual.          | `serviceId`, `type?`, `limit?`, `filter?`, `since?` |
+| `get_metrics`      | Métricas de uso (CPU, memória, disco, uptime) dos recursos.        | `serviceId`, `limit?`                          |
 | `get_usage`        | Consumo vs. cota do plano por dimensão, com excedentes.            | —                                              |
 
 ### `deploy`

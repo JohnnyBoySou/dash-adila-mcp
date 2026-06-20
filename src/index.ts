@@ -3,6 +3,7 @@ import { createClient } from "./client";
 import { createDeployTool } from "./deploy";
 import { createGetDeploymentTool, createListDeploymentsTool } from "./deployments";
 import { createGetLogsTool } from "./logs";
+import { createGetMetricsTool } from "./metrics";
 import { createListProjectsTool, createListServicesTool } from "./projects";
 import { runStdioServer } from "./server";
 import { createGetUsageTool } from "./usage";
@@ -34,5 +35,6 @@ runStdioServer({ name: "adila-mcp", version: "0.2.0" }, [
   createListDeploymentsTool(client),
   createGetDeploymentTool(client),
   createGetLogsTool(client),
+  createGetMetricsTool(client),
   createGetUsageTool(client),
 ]);

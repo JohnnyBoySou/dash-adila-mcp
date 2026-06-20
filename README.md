@@ -84,9 +84,10 @@ Reinicie o cliente e peça um deploy em linguagem natural. Pronto. 🎉
 ## 🛠️ Tools
 
 Todos os tools são escopados pela organização da chave e respeitam o papel do
-usuário no control plane. Os tools de mutação só funcionam se a chave herdar um
-papel com permissão de escrita; os destrutivos vêm marcados com `destructiveHint`
-para o cliente poder pedir confirmação.
+usuário no control plane. Cada tool anuncia suas [annotations MCP](https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations):
+os de leitura vêm com `readOnlyHint`, e os de mutação só funcionam se a chave
+herdar um papel com permissão de escrita — os destrutivos ainda trazem
+`destructiveHint` para o cliente poder pedir confirmação antes de executar.
 
 **Deploy**
 

@@ -2,10 +2,11 @@
 
 # 🚀 adila-mcp
 
-**Servidor [MCP](https://modelcontextprotocol.io) da Adila — faça deploy por linguagem natural.**
+**Servidor [MCP](https://modelcontextprotocol.io) da Adila — opere sua plataforma por linguagem natural.**
 
-Conecte Claude, Cursor ou qualquer cliente de IA ao seu control plane e dispare
-builds e deploys conversando: _"faz deploy da branch main do acme/api"_.
+Conecte Claude, Cursor ou qualquer cliente de IA ao seu control plane e gerencie
+deploys conversando: _"faz deploy da branch main do acme/api"_, _"mostra os logs
+de build do service web"_, _"como está meu uso do plano esse mês?"_.
 
 [![npm](https://img.shields.io/npm/v/adila-mcp?color=8b5cf6)](https://www.npmjs.com/package/adila-mcp)
 [![node](https://img.shields.io/badge/node-%E2%89%A518-339933?logo=node.js&logoColor=white)](https://nodejs.org)
@@ -18,9 +19,10 @@ builds e deploys conversando: _"faz deploy da branch main do acme/api"_.
 
 ## ✨ Visão geral
 
-`adila-mcp` é um **sidecar fino** (stdio, JSON-RPC 2.0) que expõe o tool `deploy`
-para clientes de IA. Ele não contém lógica de negócio: apenas traduz o protocolo
-MCP em uma chamada HTTP autenticada ao control plane da Adila (`POST /api/deploy`).
+`adila-mcp` é um **sidecar fino** (stdio, JSON-RPC 2.0) que expõe um conjunto de
+tools (deploy + leitura de projetos, services, deploys, logs e uso) para clientes
+de IA. Ele não contém lógica de negócio: apenas traduz o protocolo MCP em chamadas
+HTTP autenticadas ao control plane da Adila.
 
 - 🪶 **Zero dependências de runtime** — bundle único, roda em Node 18+ ou Bun.
 - 🔐 **Autorização ao vivo** — a chave resolve usuário/org a cada chamada; revogar tem efeito imediato.
@@ -31,9 +33,9 @@ MCP em uma chamada HTTP autenticada ao control plane da Adila (`POST /api/deploy
 
 ```
 ┌──────────────┐   stdio (JSON-RPC)   ┌───────────┐   HTTPS (Bearer)   ┌──────────────────┐
-│ Cliente de IA│ ───────────────────▶ │ adila-mcp │ ─────────────────▶ │ POST /api/deploy │
-│  (Claude…)   │ ◀─────────────────── │ (sidecar) │ ◀───────────────── │  (control plane) │
-└──────────────┘    resultado MCP     └───────────┘   build + deploy   └──────────────────┘
+│ Cliente de IA│ ───────────────────▶ │ adila-mcp │ ─────────────────▶ │   /api/* control │
+│  (Claude…)   │ ◀─────────────────── │ (sidecar) │ ◀───────────────── │       plane      │
+└──────────────┘    resultado MCP     └───────────┘    deploy + dados  └──────────────────┘
 ```
 
 A chave de API resolve o usuário/organização **ao vivo** a cada chamada no
@@ -79,16 +81,22 @@ Reinicie o cliente e peça um deploy em linguagem natural. Pronto. 🎉
 | `ADILA_API_URL`  |     ✅      | URL base do control plane (ex.: `https://api.adila.co`). |
 | `ADILA_API_KEY`  |     ✅      | Chave de API no formato `adila_sk_...`.              |
 
-## 🛠️ Tool: `deploy`
+## 🛠️ Tools
 
-Dispara um deploy (build do repositório + deploy automático) de um service.
+Todos os tools são escopados pela organização da chave e respeitam o papel do
+usuário no control plane.
 
-| Campo       | Tipo   |       Obrigatório        | Descrição                                       |
-| ----------- | ------ | ------------------------ | ----------------------------------------------- |
-| `serviceId` | string | um de `serviceId`/`repo` | ID do service a deployar.                       |
-| `repo`      | string | um de `serviceId`/`repo` | Repositório `owner/name` (resolve o service).   |
-| `branch`    | string |           não            | Branch a buildar. Padrão: branch default.       |
-| `commitSha` | string |           não            | Commit específico (opcional).                   |
+| Tool               | O que faz                                                          | Argumentos principais                          |
+| ------------------ | ------------------------------------------------------------------ | ---------------------------------------------- |
+| `deploy`           | Dispara build do repositório + deploy automático de um service.    | `serviceId` **ou** `repo`, `branch?`, `commitSha?` |
+| `list_projects`    | Lista os projetos da organização.                                  | `limit?`                                       |
+| `list_services`    | Lista os services de um projeto, agrupados por ambiente.           | `projectId`                                    |
+| `list_deployments` | Histórico de deploys de um service (status, branch/commit, URL).   | `serviceId`, `limit?`                          |
+| `get_deployment`   | Detalha um deploy (imagem, réplicas, erro, timestamps).            | `deploymentId`                                 |
+| `get_logs`         | Lê logs de `deploy` (runtime) ou `build` do deploy atual.          | `serviceId`, `type?`, `limit?`, `filter?`, `since?` |
+| `get_usage`        | Consumo vs. cota do plano por dimensão, com excedentes.            | —                                              |
+
+### `deploy`
 
 Informe **exatamente um** entre `serviceId` e `repo`. Quando `repo` mapeia para
 mais de um service, o control plane responde pedindo o `serviceId` específico.
@@ -97,6 +105,12 @@ mais de um service, o control plane responde pedindo o `serviceId` específico.
 { "serviceId": "svc_abc123" }
 { "repo": "acme/api", "branch": "main" }
 ```
+
+### Fluxo típico de descoberta
+
+`list_projects` → `list_services` (com o `projectId`) → `list_deployments` /
+`get_logs` (com o `serviceId`) → `deploy`. Os IDs retornados por um tool
+alimentam os argumentos do próximo.
 
 ## 🔐 Segurança
 

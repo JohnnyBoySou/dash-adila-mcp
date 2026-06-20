@@ -1,0 +1,24 @@
+{
+  "name": "adila-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Servidor MCP (stdio) da Adila — expõe o tool `deploy` para clientes de IA.",
+  "keywords": ["mcp", "model-context-protocol", "adila", "deploy", "stdio"],
+  "license": "MIT",
+  "bin": {
+    "adila-mcp": "dist/index.js"
+  },
+  "files": ["dist", "README.md"],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "build": "bun build src/index.ts --target node --outfile dist/index.js --minify",
+    "prepublishOnly": "bun run build"
+  },
+  "devDependencies": {
+    "bun-types": "^1.3.14",
+    "typescript": "^6.0.3"
+  }
+}

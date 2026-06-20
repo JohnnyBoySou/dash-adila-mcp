@@ -60,7 +60,7 @@ Adicione ao arquivo de MCP servers do seu cliente (ex.: `claude_desktop_config.j
       "command": "npx",
       "args": ["-y", "adila-mcp"],
       "env": {
-        "ADILA_API_URL": "https://api.adila.co",
+        "ADILA_API_URL": "https://api-dash.adila.co",
         "ADILA_API_KEY": "adila_sk_xxxxxxxx"
       }
     }
@@ -78,7 +78,7 @@ Reinicie o cliente e peça um deploy em linguagem natural. Pronto. 🎉
 
 | Variável         | Obrigatória | Descrição                                            |
 | ---------------- | :---------: | ---------------------------------------------------- |
-| `ADILA_API_URL`  |     ✅      | URL base do control plane (ex.: `https://api.adila.co`). |
+| `ADILA_API_URL`  |     ✅      | URL base do control plane (ex.: `https://api-dash.adila.co`). |
 | `ADILA_API_KEY`  |     ✅      | Chave de API no formato `adila_sk_...`.              |
 
 ## 🛠️ Tools

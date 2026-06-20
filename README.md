@@ -20,9 +20,9 @@ de build do service web"_, _"como está meu uso do plano esse mês?"_.
 ## ✨ Visão geral
 
 `adila-mcp` é um **sidecar fino** (stdio, JSON-RPC 2.0) que expõe um conjunto de
-tools (deploy + leitura de projetos, services, deploys, logs e uso) para clientes
-de IA. Ele não contém lógica de negócio: apenas traduz o protocolo MCP em chamadas
-HTTP autenticadas ao control plane da Adila.
+tools (deploy, leitura de projetos/services/deploys/builds/logs/métricas/uso/auditoria
+e mutação de infraestrutura) para clientes de IA. Ele não contém lógica de negócio:
+apenas traduz o protocolo MCP em chamadas HTTP autenticadas ao control plane da Adila.
 
 - 🪶 **Zero dependências de runtime** — bundle único, roda em Node 18+ ou Bun.
 - 🔐 **Autorização ao vivo** — a chave resolve usuário/org a cada chamada; revogar tem efeito imediato.
@@ -84,18 +84,46 @@ Reinicie o cliente e peça um deploy em linguagem natural. Pronto. 🎉
 ## 🛠️ Tools
 
 Todos os tools são escopados pela organização da chave e respeitam o papel do
-usuário no control plane.
+usuário no control plane. Os tools de mutação só funcionam se a chave herdar um
+papel com permissão de escrita; os destrutivos vêm marcados com `destructiveHint`
+para o cliente poder pedir confirmação.
 
-| Tool               | O que faz                                                          | Argumentos principais                          |
-| ------------------ | ------------------------------------------------------------------ | ---------------------------------------------- |
-| `deploy`           | Dispara build do repositório + deploy automático de um service.    | `serviceId` **ou** `repo`, `branch?`, `commitSha?` |
-| `list_projects`    | Lista os projetos da organização.                                  | `limit?`                                       |
-| `list_services`    | Lista os services de um projeto, agrupados por ambiente.           | `projectId`                                    |
-| `list_deployments` | Histórico de deploys de um service (status, branch/commit, URL).   | `serviceId`, `limit?`                          |
-| `get_deployment`   | Detalha um deploy (imagem, réplicas, erro, timestamps).            | `deploymentId`                                 |
-| `get_logs`         | Lê logs de `deploy` (runtime) ou `build` do deploy atual.          | `serviceId`, `type?`, `limit?`, `filter?`, `since?` |
-| `get_metrics`      | Métricas de uso (CPU, memória, disco, uptime) dos recursos.        | `serviceId`, `limit?`                          |
-| `get_usage`        | Consumo vs. cota do plano por dimensão, com excedentes.            | —                                              |
+**Deploy**
+
+| Tool     | O que faz                                                       | Argumentos principais                              |
+| -------- | --------------------------------------------------------------- | -------------------------------------------------- |
+| `deploy` | Dispara build do repositório + deploy automático de um service. | `serviceId` **ou** `repo`, `branch?`, `commitSha?` |
+
+**Leitura** (read-only)
+
+| Tool                | O que faz                                                        | Argumentos principais                               |
+| ------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
+| `list_projects`     | Lista os projetos da organização.                               | `limit?`                                            |
+| `list_services`     | Lista os services de um projeto, agrupados por ambiente.        | `projectId`                                         |
+| `get_service`       | Detalha um service (tipo, status, repositório, start, imagem).  | `serviceId`                                         |
+| `list_deployments`  | Histórico de deploys de um service (status, branch/commit, URL). | `serviceId`, `limit?`                              |
+| `get_deployment`    | Detalha um deploy (imagem, réplicas, erro, timestamps).         | `deploymentId`                                      |
+| `list_builds`       | Histórico de builds (construção da imagem) de um service.       | `serviceId`, `limit?`                               |
+| `get_logs`          | Lê logs de `deploy` (runtime) ou `build` do deploy atual.       | `serviceId`, `type?`, `limit?`, `filter?`, `since?` |
+| `get_metrics`       | Métricas de uso (CPU, memória, disco, uptime) dos recursos.     | `serviceId`, `limit?`                               |
+| `list_resources`    | Recursos gerenciados (Postgres, Redis…) de um service.          | `serviceId`                                         |
+| `get_resource`      | Detalha um recurso gerenciado (provedor, status, região).       | `resourceId`                                        |
+| `list_audit_logs`   | Trilha de auditoria da org (quem fez o quê), com filtros.       | `limit?`, `action?`, `targetType?`, `actorUserId?`, `from?`, `to?` |
+| `get_usage`         | Consumo vs. cota do plano por dimensão, com excedentes.         | —                                                   |
+| `get_project_usage` | Uso (RAM/disco) de um projeto, por recurso.                     | `projectId`                                         |
+
+**Mutação de infraestrutura**
+
+| Tool                 | O que faz                                                | Argumentos principais                                  |
+| -------------------- | -------------------------------------------------------- | ------------------------------------------------------ |
+| `create_service`     | Cria um service num ambiente.                            | `environmentId`, `name`, `type`, …                     |
+| `update_service`     | Atualiza a configuração de um service.                   | `serviceId`, campos opcionais                          |
+| `delete_service` ⚠️  | Exclui um service (irreversível).                        | `serviceId`                                            |
+| `create_resource`    | Provisiona um recurso gerenciado (assíncrono).           | `serviceId`, `region?`                                 |
+| `delete_resource` ⚠️ | Desprovisiona um recurso e seus dados (irreversível).    | `resourceId`                                           |
+| `create_environment` | Cria um ambiente num projeto.                            | `projectId`, `name`, `type`, …                         |
+| `update_environment` | Atualiza um ambiente.                                    | `environmentId`, campos opcionais                      |
+| `delete_environment` ⚠️ | Exclui um ambiente e tudo dentro dele (irreversível). | `environmentId`                                        |
 
 ### `deploy`
 

@@ -14,11 +14,28 @@ export interface ToolResult {
   isError?: boolean;
 }
 
+/**
+ * Dicas de comportamento do tool (MCP tool annotations). Apenas hints — o
+ * cliente de IA pode usá-las para, por exemplo, pedir confirmação antes de uma
+ * operação destrutiva. Não substituem a autorização real no control plane.
+ */
+export interface ToolAnnotations {
+  /** Rótulo amigável exibido por alguns clientes. */
+  title?: string;
+  /** Só lê estado, não modifica nada. */
+  readOnlyHint?: boolean;
+  /** Pode apagar ou sobrescrever recursos de forma irreversível. */
+  destructiveHint?: boolean;
+  /** Chamar de novo com os mesmos argumentos não causa efeito adicional. */
+  idempotentHint?: boolean;
+}
+
 /** Definição de um tool exposto via `tools/list` / `tools/call`. */
 export interface McpTool {
   name: string;
   description: string;
   inputSchema: Record<string, unknown>;
+  annotations?: ToolAnnotations;
   handler: (args: Record<string, unknown>) => Promise<ToolResult>;
 }
 
@@ -136,6 +153,7 @@ export function runStdioServer(info: ServerInfo, tools: McpTool[]): void {
             name: tool.name,
             description: tool.description,
             inputSchema: tool.inputSchema,
+            ...(tool.annotations ? { annotations: tool.annotations } : {}),
           })),
         };
       case "tools/call":

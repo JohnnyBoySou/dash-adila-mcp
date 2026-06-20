@@ -1,9 +1,9 @@
 {
   "name": "adila-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
-  "description": "Servidor MCP (stdio) da Adila — deploy, projetos, services, deploys, logs e uso para clientes de IA.",
-  "keywords": ["mcp", "model-context-protocol", "adila", "deploy", "logs", "stdio"],
+  "description": "Servidor MCP (stdio) da Adila — deploy, projetos, services, recursos, builds, logs, métricas, uso e auditoria para clientes de IA.",
+  "keywords": ["mcp", "model-context-protocol", "adila", "deploy", "logs", "metrics", "stdio"],
   "license": "MIT",
   "bin": {
     "adila-mcp": "dist/index.js"

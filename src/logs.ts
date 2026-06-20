@@ -19,6 +19,7 @@ export function createGetLogsTool(client: AdilaClient): McpTool {
     description:
       "Lê os logs do deploy atual de um service. `type` escolhe o fluxo: " +
       '"deploy" (runtime, padrão) ou "build". Aceita filtro de texto e janela temporal.',
+    annotations: { readOnlyHint: true },
     inputSchema: {
       type: "object",
       properties: {

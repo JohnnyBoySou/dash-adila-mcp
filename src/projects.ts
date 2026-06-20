@@ -30,6 +30,7 @@ export function createListProjectsTool(client: AdilaClient): McpTool {
     description:
       "Lista os projetos da organização da chave de API. Use para descobrir IDs " +
       "de projeto antes de inspecionar ambientes, services ou uso.",
+    annotations: { readOnlyHint: true },
     inputSchema: {
       type: "object",
       properties: {
@@ -67,6 +68,7 @@ export function createListServicesTool(client: AdilaClient): McpTool {
     description:
       "Lista os services de um projeto, agrupados por ambiente. Devolve os IDs " +
       "de service usados em `deploy`, `list_deployments` e `get_logs`.",
+    annotations: { readOnlyHint: true },
     inputSchema: {
       type: "object",
       properties: {

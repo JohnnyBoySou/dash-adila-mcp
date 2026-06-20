@@ -31,6 +31,7 @@ export function createListDeploymentsTool(client: AdilaClient): McpTool {
     description:
       "Lista o histórico de deploys de um service (mais recentes primeiro), com " +
       "status, branch/commit, URL e qual está ativo. Use `serviceId` de `list_services`.",
+    annotations: { readOnlyHint: true },
     inputSchema: {
       type: "object",
       properties: {
@@ -70,6 +71,7 @@ export function createGetDeploymentTool(client: AdilaClient): McpTool {
     description:
       "Detalha um deploy específico: status, imagem, réplicas, branch/commit, URL, " +
       "erro (se houver) e timestamps. Use o `deploymentId` de `list_deployments`.",
+    annotations: { readOnlyHint: true },
     inputSchema: {
       type: "object",
       properties: {

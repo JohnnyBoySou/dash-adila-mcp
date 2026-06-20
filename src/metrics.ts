@@ -42,6 +42,7 @@ export function createGetMetricsTool(client: AdilaClient): McpTool {
     description:
       "Mostra as métricas de uso (CPU, memória, disco, uptime) dos recursos de um " +
       "service — a amostra mais recente de cada recurso, com histórico opcional.",
+    annotations: { readOnlyHint: true },
     inputSchema: {
       type: "object",
       properties: {
